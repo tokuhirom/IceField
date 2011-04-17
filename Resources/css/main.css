@@ -1,0 +1,83 @@
+.container {width:750px;margin:0 auto;}
+
+header {
+    height: 50px;
+    font-size: 36px;
+    padding: 2px;
+    text-align: center; }
+    header .logo {
+        display: block;
+        color: black;
+        font-weight: bold;
+        text-decoration: none; }
+    header #LogoutForm {
+        float: right;
+    }
+    header #LogoutForm input {
+        padding: 20px;
+    }
+
+footer {
+    text-align: right;
+    padding-right: 10px;
+    padding-top: 2px; }
+    footer a {
+        text-decoration: none;
+        color: black;
+        font-weight: bold;
+    }
+
+a {
+    text-decoration: none;
+    color: #c4c4c4;
+    font-weight: bold;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+.hentry {
+    padding: 4px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+.hentry .entry-content {
+    word-wrap:break-word;
+}
+.hentry.reblogging {
+    background-color: #FCAF7D;
+}
+.hentry.reblogged {
+    background-color: #FFEAC4;
+}
+.hentry .entry-content img {
+    box-shadow: 1px 1px 14px #999999;
+}
+.hentry .permalink {
+    float: right;
+    font-size: small;
+}
+.hentry .reblogged-root {
+    color: #eeeeee;
+}
+.hentry .quote-source {
+    margin-left: 30px;
+}
+.hentry .owner-icon {
+    border-radius: 4px;
+}
+.hentry .owner-icon-container {
+    width:48px;
+    float:left;
+    margin-right:10px;
+}
+.hentry .content-container {
+    width:684px;
+    float:left;
+    margin-right:0;
+    padding-right:0;
+}
+
+/* smart phones */
+@media screen and (max-device-width: 480px) {
+}

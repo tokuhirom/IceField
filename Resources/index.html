@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>IceField</title>
+        <link href="css/blueprint/screen.css" rel="stylesheet" type="text/css" media="screen" />
+        <link href="css/blueprint/print.css" rel="stylesheet" type="text/css" media="print" />
+        <link href="lib/jgrowl/jquery.jgrowl.css" rel="stylesheet" type="text/css" />
+        <meta http-equiv="Content-Style-Type" content="text/css" />  
+        <meta http-equiv="Content-Script-Type" content="text/javascript" />  
+        <link href="css/main.css" rel="stylesheet" type="text/css" media="screen" />
+        <script src="js/jquery-1.5.2.min.js"></script>
+        <script src="lib/jgrowl/jquery.jgrowl.js"></script>
+        <script src="js/tumblr-viewer.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div id="LoginPane" class="Pane">
+                <header>
+                    TumblrViewer
+                </header>
+                <div id="main">
+                    <h2>Please input your Tumblr account.</h2>
+                    <form method="post" id="LoginForm">
+                        <table>
+                        <tr><th>email</th><td><input type="text" value="" name="email" size="40" /></td></tr>
+                        <tr><th>password</th><td><input type="password" value="" name="password" size="40"  /></td></tr>
+                        <tr><td colspan="2"><input type="submit" value="login" /></td></tr>
+                        </table>
+                    </form>
+                </div>
+            </div>
+            <div id="MainPane" class="Pane">
+                <header class="clearfix">
+                    <div class="logo">TumblrViewer</div>
+                    <form id="LogoutForm">
+                        <input type="submit" value="logout" />
+                    </form>
+                </header>
+                <hr class="space" />
+                <div id="main">
+                    <div class="hfeed">
+                    </div><!-- /.hfeed -->
+                </div>
+
+                <script type="text/template" id="EntryTmpl">
+                <div class="hentry clearfix" data-reblog-key="<%=  post['reblog-key'] %>" data-post-id="<%= post['id'] %>">
+                    <div class="owner-icon-container">
+                        <img src="<%= post.tumblelog.avatar_url_48 %>" class="owner-icon" width="48" height="48" />
+                    </div>
+                    <div class="content-container">
+                        <div class="header">
+                            <a href="<%= post['tumblelog'].url %>"><%= post.tumblelog.name %></a>
+                            <% if (post['reblogged-from-name']) { %>
+                            reblogged from <a href="<%= post['reblogged-from-url'] %>"><%= post['reblogged-from-name'] %></a>
+                            <% } %>
+                            <a href="<%= post['url'] %>" rel="bookmark" class="permalink">¶</a>
+                        </div>
+
+                        <div class="entry-content">
+                            <!-- TODO: support quote -->
+                            <% if (post.type == 'photo') { %>
+                                <img src="<%= post['photo-url-500'] %>" />
+                            <% } else if (post.type == 'quote') { %>
+                                <div class="quote-text"><%= post['quote-text'] %></div>
+                                <div class="quote-source">— <%= post['quote-source'] %></div>
+                            <% } %>
+                        </div>
+                        <div class="entry-title"><%= post['photo-caption'] %></div>
+                        <% if (post['reblogged-root-url']) { %>
+                        <div class="reblogged-root">
+                            Source: <a href="<%= post['reblogged-root-url'] %>"><%= post['reblogged-root-name'] %></a>
+                        </div>
+                        <% } %>
+                    </div>
+                </div><!-- /.hentry -->
+                </script>
+                <pre id="debug"></pre>
+                <!-- TODO: XSS -->
+            </div>
+        </div>
+    </body>
+</html>

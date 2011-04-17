@@ -1,0 +1,20 @@
+#appname:IceField
+#appid:org.frepan.IceField
+#publisher:tokuhirom
+#image:Icon.png
+#url:http://64p.org/
+#guid:7f200ab4-fbdb-4a4a-b848-bcf20d93dd72
+#desc:No description provided
+#type:desktop
+runtime:1.1.0
+tiapp:1.1.0
+tifilesystem:1.1.0
+tiplatform:1.1.0
+tiui:1.1.0
+ticodec:1.1.0
+tidatabase:1.1.0
+timedia:1.1.0
+timonkey:1.1.0
+tinetwork:1.1.0
+tiprocess:1.1.0
+tiworker:1.1.0

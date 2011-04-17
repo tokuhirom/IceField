@@ -1,0 +1,6 @@
+Notes
+-----
+
+app.js in Titanium desktop
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+http://developer.appcelerator.com/question/31391/appjs-in-desktop-app
