@@ -12,9 +12,8 @@ window.onload = function () {
         ICEField.authenticate(email, password).done(function () {
             ICEField.setUserInfo(email, password);
 
-            Titanium.UI.getCurrentWindow().close();
-            var win = Titanium.UI.createWindow('app://main.html');
-            win.open();
+            ICEField.closeCurrentWindow();
+            ICEField.showMainWindow();
         }).fail(function(res) {
             alert("Login failed: " + err.responseText);
         });

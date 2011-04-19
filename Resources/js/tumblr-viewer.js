@@ -65,7 +65,7 @@ LDRize.prototype = {
         var elem = this.getElement(this.i);
 
         var url = elem.find('.permalink').attr('href');
-        Titanium.Platform.openURL(url);
+        ICEField.openURL(url);
     }
 };
 
@@ -135,9 +135,8 @@ var MainPaneController = {
             if (window.confirm('really logout?')) {
                 ICEField.removeUserInfo();
 
-                Titanium.UI.getCurrentWindow().close();
-                var win = Titanium.UI.createWindow('app://login.html');
-                win.open();
+                ICEField.closeCurrentWindow();
+                ICEField.showLoginWindow();
             } else {
                 // nop.
             }
@@ -233,8 +232,6 @@ var h = htmlspecialchars;
 
 
 // initialize panes.
-Titanium.UI.getCurrentWindow().setMinWidth(960);
-window.Ti = Titanium;
 window.onload = function () {
     console.log('onload');
 
@@ -244,7 +241,7 @@ window.onload = function () {
         e.preventDefault();
 
         var url = $(this).attr('href');
-        window.Ti.Platform.openURL(url);
+        ICEField.openURL(url);
 
         return false;
     });

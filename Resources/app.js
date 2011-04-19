@@ -2,12 +2,10 @@ console.log("loading app.js");
 
 ICEField.getUserInfo().done(function (user) {
     console.log('open main.html');
-    var win = Titanium.UI.createWindow('app://main.html');
-    win.open();
+    ICEField.showMainWindow();
 }).fail(function (err) {
     console.log(err);
-    var win = Titanium.UI.createWindow('app://login.html');
-    win.open();
+    ICEField.showLoginWindow();
 });
 // setTimeout(function () { Titanium.UI.getCurrentWindow().close() }, 1000);
 

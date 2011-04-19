@@ -1,7 +1,28 @@
-var ICEField = ICEField || {};
+(function (__global) {
 
-ICEField.db = Titanium.Database.open('mydb');
+var ICEField = __global.ICEField || {};
+
+var Ti = __global.Titanium;
+
+ICEField.db = Ti.Database.open('mydb');
 ICEField.db.execute('CREATE TABLE IF NOT EXISTS post (id VARCHAR(255) PRIMARY KEY, data, read_fg default 0)');
+
+ICEField.openURL = function (url) {
+    Ti.Platform.openURL(url);
+};
+
+ICEField.showLoginWindow = function () {
+    var win = Ti.UI.createWindow('app://login.html');
+    win.open();
+};
+
+ICEField.showMainWindow = function () {
+    var win = Ti.UI.createWindow('app://main.html');
+    win.open();
+};
+ICEField.closeCurrentWindow = function () {
+    Ti.UI.getCurrentWindow().close();
+};
 
 ICEField.getUserInfo = function () {
     var deferred = new $.Deferred();
@@ -126,3 +147,8 @@ ICEField.crawl = function () {
     })(queue.shift());
 };
 
+// delete __global.Titanium;
+
+__global.ICEField = ICEField;
+
+})(this);
