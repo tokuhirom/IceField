@@ -46,15 +46,15 @@
 
                     <div class="entry-content">
                         <% if (post.type == 'photo') { %>
-                            <img src="<%= post['photo-url-500'] %>" />
+                            <img src="<%= h(post['photo-url-500']) %>" />
                         <% } else if (post.type == 'quote') { %>
-                            <div class="quote-text"><%= post['quote-text'] %></div>
-                            <div class="quote-source">— <%= post['quote-source'] %></div>
+                            <div class="quote-text"><%= sanitize(post['quote-text']) %></div>
+                            <div class="quote-source">— <%= sanitize(post['quote-source']) %></div>
                         <% } else { %>
                             <div>Unknown entry type: <%= h(post.type) %></div>
                         <% } %>
                     </div>
-                    <div class="entry-title"><%= post['photo-caption'] %></div>
+                    <div class="entry-title"><%= sanitize(post['photo-caption']) %></div>
                     <% if (post['reblogged-root-url']) { %>
                     <div class="reblogged-root">
                         Source: <a href="<%= h(post['reblogged-root-url']) %>"><%= h(post['reblogged-root-name']) %></a>

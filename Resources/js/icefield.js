@@ -50,8 +50,11 @@ ICEField.getUserInfoNoAuth = function () {
 ICEField.removeUserInfo = function () {
     localStorage.removeItem('login');
 };
-ICEField.setUserInfo = function (email, password) {
-    localStorage.setItem('login', JSON.stringify({email:email, password:password}));
+ICEField.setUserInfo = function (email, password, res) {
+    var obj = {email:email, password:password};
+    obj.urls = $(res).find('tumblelog').map(function (i,x) { return $(x).attr('url') }).splice(0);
+
+    localStorage.setItem('login', JSON.stringify(obj));
 };
 ICEField.authenticate = function (email, password) {
     var deferred = $.Deferred();

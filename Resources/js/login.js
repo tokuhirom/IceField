@@ -9,12 +9,13 @@ window.onload = function () {
             email = $('input[name="email"]', form).val(),
             password = $('input[name="password"]', form).val();
 
-        ICEField.authenticate(email, password).done(function () {
-            ICEField.setUserInfo(email, password);
+        ICEField.authenticate(email, password).done(function (res) {
+            ICEField.setUserInfo(email, password, res);
 
             ICEField.closeCurrentWindow();
             ICEField.showMainWindow();
-        }).fail(function(res) {
+        }).fail(function(err) {
+            console.log("WHY");
             alert("Login failed: " + err.responseText);
         });
 

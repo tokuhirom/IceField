@@ -171,6 +171,7 @@ var MainPaneController = {
 
             var t = tmpl("EntryTmpl");
             var container = $('.hfeed');
+            var user = ICEField.getUserInfoNoAuth();
 
             var has_next=false;
             ICEField.transaction(function () {
@@ -192,9 +193,22 @@ var MainPaneController = {
                         break;
                     }
 
-                    var html = t({post: JSON.parse(rows.field(1))});
-                    container.append(html);
+                    (function () {
+                        var entry = JSON.parse(rows.field(1));
+                        if (entry && entry.tumblelog) {
+                            for (var i=0, max=user.urls.length; i<max; i++) {
+                                var url = user.urls[i];
+                                if (url == entry.tumblelog.url) {
+                                    return; // it's mine
+                                }
+                            }
+                        }
+                        // it's not mine
+                        var html = t({post: entry});
+                        container.append(html);
+                    })();
 
+                    // TODO delay to displaying element
                     var id = rows.field(0);
                     console.log("UPDATING: " + id + ' ' + rows.fieldByName('id'));
                     ICEField.db.execute('UPDATE post SET read_fg=1 WHERE id=?', id);
@@ -228,8 +242,51 @@ function htmlspecialchars(s) {
     return obj.innerHTML;
 }
 
+// sanitize html
+function sanitize(src) {
+    if (!src) { return undefined; }
+
+    var div = document.createElement('div');
+    div.innerHTML = src;
+    return safeNode2String(div);
+}
+
+// http://d.hatena.ne.jp/os0x/20080228/1204210085
+var safeNode2String = function(node){
+  if (node.nodeType != Node.ELEMENT_NODE && node.nodeType != Node.TEXT_NODE) return;
+  var func = arguments.callee;
+  var nodes = node.childNodes;
+  var contents =[];
+  for (var i=0,l=nodes.length;i<l;i++){
+    var content = func(nodes[i]);
+    if(content) contents.push(content);
+  }
+  if (node.nodeType == Node.ELEMENT_NODE){
+    var tag = node.tagName;
+    var attr = (function(){
+      var res=[''];
+      switch(tag){
+        case 'IMG':
+          if (node.src.match(/^http:/) ) res.push('src="' + node.src + '"' );
+          break;
+        case 'A':
+          if (node.href.match(/^http:/) ) res.push( 'href="' + node.href + '"' );
+          break;
+        default:
+          break;
+      }
+      return res.join(' ');
+    })();
+    return '<' + tag + attr + '>' + contents.join('') + '</'+tag+'>';
+  } else if (node.nodeType == Node.TEXT_NODE) {
+    return node.nodeValue;
+  }
+};
+
+
 var h = htmlspecialchars;
 
+$.jGrowl.defaults.position='bottom-right';
 
 // initialize panes.
 window.onload = function () {
