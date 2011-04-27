@@ -4,8 +4,21 @@ var ICEField = __global.ICEField || {};
 
 var Ti = __global.Titanium;
 
-ICEField.db = Ti.Database.open('mydb');
-ICEField.db.execute('CREATE TABLE IF NOT EXISTS post (id VARCHAR(255) PRIMARY KEY, data, read_fg default 0)');
+if (!window.openDatabase) {
+    alert("This browser does not support IndexedDB. abort.");
+    return;
+}
+
+var DBVERSION = 1.0;
+ICEField.db = window.openDatabase("icefield", DBVERSION, "IceField", 1048576);
+if (!ICEField.db) {
+    alert("Cannot open database");
+    return;
+}
+
+ICEField.db.transaction(function(tx) {
+    tx.executeSql('CREATE TABLE IF NOT EXISTS post (id VARCHAR(255) PRIMARY KEY, data, read_fg default 0)');
+});
 
 ICEField.openURL = function (url) {
     Ti.Platform.openURL(url);
@@ -74,20 +87,15 @@ ICEField.authenticate = function (email, password) {
 
 ICEField.showUnreadCount = function () {
     var db = ICEField.db;
-    var rows = db.execute('select count(*) from post where read_fg=0');
-    $.jGrowl('Unread posts: ' + rows.field(0));
-};
-
-ICEField.transaction = function (code) {
-    ICEField.db.execute('BEGIN TRANSACTION;');
-    try {
-        code();
-        ICEField.db.execute('COMMIT TRANSACTION;');
-    } catch (e) {
-        console.log('error');
-        console.log(e);
-        ICEField.db.execute('ROLLBACK TRANSACTION;');
-    };
+    db.transaction(function (tx) {
+        var rows = tx.executeSql('select count(*) AS count from post where read_fg=0', [], function (tx, rs) {
+            console.log(rs.rows.item(0));
+            var unread = rs.rows.item(0).count;
+            $.jGrowl('Unread posts: ' + unread);
+        }, function (err) {
+            $.jGrowl("DBERR: " + err);
+        });
+    });
 };
 
 ICEField.crawl = function () {
@@ -113,24 +121,30 @@ ICEField.crawl = function () {
                 console.log(e);
             }
 
-            ICEField.transaction(function () {
-                var posts = data.posts,
-                    db = ICEField.db,
-                    inserted = 0;
+            var db = ICEField.db;
+            db.transaction(function (tx) {
+                (function (posts, inserted) {
+                    var self = arguments.callee;
 
-                for (var i=0, max=posts.length; i<max; i++) {
-                    var post = posts[i];
-                    var rows = db.execute('SELECT * FROM post WHERE id=?', post.id);
-                    if (rows.rowCount() > 0) {
-                        continue;
-                    } else {
-                        inserted++;
-                        db.execute('INSERT INTO post (id, data) VALUES (?, ?)', post.id, JSON.stringify(post));
-                    }
-                }
-                if (inserted>0) {
-                    $.jGrowl("got " + inserted + " posts");
-                }
+                    var post = posts.shift();
+                    tx.executeSql('SELECT count(*) as count FROM post WHERE id=?', [post.id], function (tx, rs) {
+                        if (rs.rows.item(0).count==0) {
+                            inserted++;
+                            tx.executeSql(
+                                'INSERT INTO post (id, data) VALUES (?, ?)', [post.id, JSON.stringify(post)]
+                            );
+                        }
+                        if (posts.length > 0) {
+                            self(posts, inserted);
+                        } else {
+                            if (inserted>0) {
+                                $.jGrowl("got " + inserted + " posts");
+                            }
+                        }
+                    }, function (err) {
+                        $.jGrowl("DBERR: " + err);
+                    });
+                })(data.posts.slice(0), 0);
             });
         }).error(function (err) {
             console.log("Cannot fetch data: " + err.responseText);

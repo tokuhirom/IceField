@@ -174,57 +174,50 @@ var MainPaneController = {
             var user = ICEField.getUserInfoNoAuth();
 
             var has_next=false;
-            ICEField.transaction(function () {
+            ICEField.db.transaction(function (tx) {
                 var entries_per_page = 50;
-                var rows = ICEField.db.execute(
+                tx.executeSql(
                     'SELECT id, data FROM post WHERE read_fg=0 ORDER BY id DESC LIMIT ?',
-                    entries_per_page+1
-                );
-
-                if (!rows.rowCount()) { console.log(rows); $.jGrowl("no unread posts are available."); return; }
-
-                var i=0,
-                    has_next=false;
-                while (rows.isValidRow()) {
-                    i++;
-
-                    if (i==entries_per_page+1) {
-                        has_next=true;
-                        break;
-                    }
-
-                    (function () {
-                        var entry = JSON.parse(rows.field(1));
-                        if (entry && entry.tumblelog) {
-                            for (var i=0, max=user.urls.length; i<max; i++) {
-                                var url = user.urls[i];
-                                if (url == entry.tumblelog.url) {
-                                    return; // it's mine
-                                }
-                            }
+                    [entries_per_page+1], function (tx, rs) {
+                        console.log("rs.rows.length: " + rs.rows.length);
+                        if (rs.rows.length == 0) {
+                            console.log(rs);
+                            $.jGrowl("no unread posts are available.");
+                            return;
                         }
-                        // it's not mine
-                        var html = t({post: entry});
-                        container.append(html);
-                    })();
+                        var has_next=false;
+                        for (var i=0, max=rs.rows.length; i<max; i++) {
+                            console.log("I: " + i);
+                            if (i==entries_per_page+1) {
+                                has_next=true;
+                                break;
+                            }
+                            var row = rs.rows.item(i),
+                                entry = JSON.parse(row.data);
+                            (function () {
+                                if (entry && entry.tumblelog) {
+                                        for (var i=0, max=user.urls.length; i<max; i++) {
+                                            var url = user.urls[i];
+                                            if (url == entry.tumblelog.url) {
+                                                return; // it's mine
+                                            }
+                                        }
+                                }
+                                // it's not mine
+                                var html = t({post: entry});
+                                container.append(html);
+                            })();
 
-                    // TODO delay to displaying element
-                    var id = rows.field(0);
-                    console.log("UPDATING: " + id + ' ' + rows.fieldByName('id'));
-                    ICEField.db.execute('UPDATE post SET read_fg=1 WHERE id=?', id);
+                            // TODO delay to displaying element
+                            console.log("UPDATING: " + row.id);
+                            tx.executeSql('UPDATE post SET read_fg=1 WHERE id=?', [row.id]);
+                        }
+                        d.resolve(has_next);
 
-                    rows.next();
-                }
-                rows.close();
+                        ICEField.showUnreadCount();
+                    }
+                );
             });
-
-            d.resolve(has_next);
-
-            (function () {
-                var db = ICEField.db;
-                var rows = db.execute('select count(*) from post where read_fg=0');
-                $.jGrowl('Unread posts: ' + rows.field(0));
-            })();
 
             return d;
         });
